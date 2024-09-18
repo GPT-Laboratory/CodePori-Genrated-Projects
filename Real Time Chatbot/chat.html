@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <style>
+        body { font-family: Arial, sans-serif; }
+        .container { width: 600px; margin: auto; padding: 20px; }
+        #message-board { border: 1px solid black; height: 300px; overflow-y: scroll; margin-bottom: 20px; padding: 10px; }
+        input[type="text"] { width: 80%; padding: 10px; }
+        button { padding: 10px; background-color: green; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: darkgreen; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
+    <script type="text/javascript" charset="utf-8">
+        document.addEventListener('DOMContentLoaded', (event) => {
+            const socket = io();
+            const messageBoard = document.getElementById('message-board');
+            const messageInput = document.getElementById('message-input');
+            const sendButton = document.getElementById('send-button');
+
+            socket.on('message', function(msg) {
+                const messageElement = document.createElement('p');
+                messageElement.textContent = msg;
+                messageBoard.appendChild(messageElement);
+                messageBoard.scrollTop = messageBoard.scrollHeight;
+            });
+
+            sendButton.addEventListener('click', function() {
+                const msg = messageInput.value;
+                if (msg) {
+                    socket.send(msg);
+                    messageInput.value = '';
+                }
+            });
+        });
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome, {{ username }}!</h2>
+        <a href="/logout">Logout</a>
+        <div id="message-board"></div>
+        <input type="text" id="message-input" placeholder="Type your message...">
+        <button id="send-button">Send</button>
+    </div>
+</body>
+</html>
