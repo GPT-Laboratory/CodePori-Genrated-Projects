@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat with AI</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        #chat-box {
+            width: 60%;
+            height: 70%;
+            border: 1px solid #ccc;
+            overflow-y: scroll;
+            margin-bottom: 20px;
+            padding: 10px;
+            white-space: pre-wrap;
+            /* Preserve whitespace and line breaks */
+        }
+
+        #user-input {
+            width: 60%;
+            display: flex;
+        }
+
+        #user-input input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        #user-input button {
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        .message {
+            margin: 10px 0;
+        }
+
+        .user-message {
+            text-align: right;
+        }
+
+        .ai-message {
+            text-align: left;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chat-box"></div>
+    <div id="user-input">
+        <input type="text" id="question" placeholder="Type your question here...">
+        <button onclick="sendQuery()">Send</button>
+    </div>
+
+    <script>
+        async function sendQuery() {
+            const question = document.getElementById('question').value;
+            if (!question.trim()) return;
+
+            const chatBox = document.getElementById('chat-box');
+
+            // Show user question immediately
+            const userMessage = `<div class="message user-message"><strong>You:</strong> ${question}</div>`;
+            chatBox.innerHTML += userMessage;
+
+            // Show AI is thinking message
+            const aiMessageId = 'ai-message-' + new Date().getTime();
+            const aiMessagePlaceholder = `<div class="message ai-message" id="${aiMessageId}"><strong>AI:</strong> Finding the right answer...</div>`;
+            chatBox.innerHTML += aiMessagePlaceholder;
+            chatBox.scrollTop = chatBox.scrollHeight;
+            document.getElementById('question').value = '';
+
+            const response = await fetch('/query', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: `question=${encodeURIComponent(question)}`
+            });
+
+            const data = await response.json();
+            const formattedResponse = formatResponse(data.response);
+
+            // Replace placeholder with actual response
+            document.getElementById(aiMessageId).innerHTML = `<strong>AI:</strong> ${formattedResponse}`;
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        function formatResponse(response) {
+            // Convert markdown table to HTML table
+            const tableMarkdown = response.match(/\|(.|\n)*?\|/);
+            if (tableMarkdown) {
+                const tableHTML = convertMarkdownTableToHTML(tableMarkdown[0]);
+                response = response.replace(tableMarkdown[0], tableHTML);
+            }
+            return response.replace(/\n/g, '<br>');
+        }
+
+        function convertMarkdownTableToHTML(markdown) {
+            const lines = markdown.split('\n').filter(line => line.trim() !== '');
+            let table = '<table border="1">';
+            for (const line of lines) {
+                const cells = line.split('|').map(cell => cell.trim()).filter(cell => cell !== '');
+                if (cells.length) {
+                    table += '<tr>';
+                    for (const cell of cells) {
+                        if (lines.indexOf(line) === 0) {
+                            table += `<th>${cell}</th>`;
+                        } else {
+                            table += `<td>${cell}</td>`;
+                        }
+                    }
+                    table += '</tr>';
+                }
+            }
+            table += '</table>';
+            return table;
+        }
+    </script>
+</body>
+
+</html>
