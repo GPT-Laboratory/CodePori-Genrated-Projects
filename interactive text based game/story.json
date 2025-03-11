@@ -1,0 +1,46 @@
+{
+    "start": {
+        "text": "You wake up in a dark forest. There's a path to the left and right.",
+        "choices": {
+            "left": "cave",
+            "right": "river"
+        }
+    },
+    "cave": {
+        "text": "You enter a dark cave. You see a treasure chest and a sleeping dragon.",
+        "choices": {
+            "open chest": "treasure",
+            "wake dragon": "dragon_attack"
+        }
+    },
+    "river": {
+        "text": "You reach a river. You see a boat and a bridge.",
+        "choices": {
+            "take boat": "island",
+            "cross bridge": "village"
+        }
+    },
+    "treasure": {
+        "text": "You open the chest and find gold! You win!",
+        "choices": {}
+    },
+    "dragon_attack": {
+        "text": "The dragon wakes up and attacks you. You lose!",
+        "choices": {}
+    },
+    "island": {
+        "text": "You sail to an island and find a mysterious cave.",
+        "choices": {
+            "enter cave": "cave",
+            "stay on shore": "beach"
+        }
+    },
+    "village": {
+        "text": "You arrive at a friendly village where you rest and eat. You win!",
+        "choices": {}
+    },
+    "beach": {
+        "text": "You stay on the beach and a storm hits. You lose!",
+        "choices": {}
+    }
+}
